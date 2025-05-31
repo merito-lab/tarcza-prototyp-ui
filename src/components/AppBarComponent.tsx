@@ -27,7 +27,6 @@ import {
   EmojiEvents as TrophyIcon,
   School as SchoolIcon,
   Lightbulb as LightbulbIcon,
-  CheckCircle as CheckCircleIcon,
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
