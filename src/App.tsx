@@ -10,6 +10,9 @@ import KudosModule from './components/KudosModule';
 import EmployeeList from './components/EmployeeList';
 import ProfilePage from './components/ProfilePage';
 import MamWplywModule from './components/MamWplywModule';
+import TrainingModule from './components/TrainingModule';
+import ReportsModule from './components/ReportsModule';
+import Layout from './components/Layout';
 
 interface User {
   id: number;
@@ -191,6 +194,11 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState<User | null>(null);
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -206,7 +214,7 @@ function App() {
                 isLoggedIn ? (
                   <Dashboard 
                     user={currentUser} 
-                    onLogout={() => setIsLoggedIn(false)} 
+                    onLogout={handleLogout} 
                   />
                 ) : (
                   <LoginPage 
@@ -218,10 +226,54 @@ function App() {
                 )
               } 
             />
-            <Route path="/kudos" element={<KudosModule user={currentUser} />} />
-            <Route path="/employees" element={<EmployeeList user={currentUser} />} />
-            <Route path="/profile" element={<ProfilePage user={currentUser} />} />
-            <Route path="/initiatives" element={<MamWplywModule user={currentUser} />} />
+            <Route 
+              path="/kudos" 
+              element={
+                <Layout user={currentUser} onLogout={handleLogout}>
+                  <KudosModule user={currentUser} />
+                </Layout>
+              } 
+            />
+            <Route 
+              path="/employees" 
+              element={
+                <Layout user={currentUser} onLogout={handleLogout}>
+                  <EmployeeList user={currentUser} />
+                </Layout>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <Layout user={currentUser} onLogout={handleLogout}>
+                  <ProfilePage user={currentUser} />
+                </Layout>
+              } 
+            />
+            <Route 
+              path="/initiatives" 
+              element={
+                <Layout user={currentUser} onLogout={handleLogout}>
+                  <MamWplywModule user={currentUser} />
+                </Layout>
+              } 
+            />
+            <Route 
+              path="/training" 
+              element={
+                <Layout user={currentUser} onLogout={handleLogout}>
+                  <TrainingModule user={currentUser} />
+                </Layout>
+              } 
+            />
+            <Route 
+              path="/reports" 
+              element={
+                <Layout user={currentUser} onLogout={handleLogout}>
+                  <ReportsModule user={currentUser} />
+                </Layout>
+              } 
+            />
           </Routes>
         </Router>
       </Box>

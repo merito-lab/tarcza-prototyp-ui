@@ -1,36 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
-  AppBar,
-  Toolbar,
   Typography,
-  IconButton,
-  Avatar,
-  Menu,
-  MenuItem,
   Card,
   CardContent,
-  Grid,
-  Chip,
   Badge,
-  ListItemIcon,
-  Divider,
   Container,
   Fade,
   Grow,
 } from '@mui/material';
 import {
-  Shield as ShieldIcon,
   Person as PersonIcon,
-  Logout as LogoutIcon,
   EmojiEvents as TrophyIcon,
   Group as GroupIcon,
   Lightbulb as LightbulbIcon,
   Assessment as ReportIcon,
-  Notifications as NotificationsIcon,
-  Settings as SettingsIcon,
+  School as SchoolIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import AppBarComponent from './AppBarComponent';
 
 interface User {
   id: number;
@@ -57,21 +45,7 @@ interface DashboardCard {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    handleMenuClose();
-    onLogout();
-  };
 
   const handleCardClick = (route: string) => {
     navigate(route);
@@ -95,6 +69,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
         icon: <PersonIcon sx={{ fontSize: 40 }} />,
         color: '#007AFF',
         route: '/profile',
+      },
+      {
+        title: 'Moduł Szkoleń',
+        description: 'Zarządzaj szkoleniami i rozwojem kompetencji',
+        icon: <SchoolIcon sx={{ fontSize: 40 }} />,
+        color: '#AF52DE',
+        route: '/training',
+        badge: 2,
       },
     ];
 
@@ -137,88 +119,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      {/* Navigation Bar */}
-      <AppBar position="sticky" elevation={0}>
-        <Toolbar>
-          <ShieldIcon sx={{ mr: 2, fontSize: 28 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            TARCZA
-          </Typography>
-          
-          <IconButton color="inherit" sx={{ mr: 1 }}>
-            <Badge badgeContent={4} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-
-          <IconButton
-            onClick={handleMenuOpen}
-            sx={{ p: 0 }}
-          >
-            <Avatar
-              sx={{
-                bgcolor: 'secondary.main',
-                width: 40,
-                height: 40,
-                fontSize: '1.2rem',
-              }}
-            >
-              {user.avatar}
-            </Avatar>
-          </IconButton>
-
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-            sx={{
-              '& .MuiPaper-root': {
-                borderRadius: 2,
-                mt: 1,
-                minWidth: 200,
-              },
-            }}
-          >
-            <Box sx={{ px: 2, py: 1 }}>
-              <Typography variant="subtitle2" fontWeight={600}>
-                {user.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {user.email}
-              </Typography>
-              <Chip
-                label={user.role}
-                size="small"
-                color="primary"
-                variant="outlined"
-                sx={{ mt: 1 }}
-              />
-            </Box>
-            <Divider />
-            <MenuItem onClick={() => navigate('/profile')}>
-              <ListItemIcon>
-                <PersonIcon fontSize="small" />
-              </ListItemIcon>
-              Mój profil
-            </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
-              <ListItemIcon>
-                <SettingsIcon fontSize="small" />
-              </ListItemIcon>
-              Ustawienia
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleLogout}>
-              <ListItemIcon>
-                <LogoutIcon fontSize="small" />
-              </ListItemIcon>
-              Wyloguj się
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
+      <AppBarComponent user={user} onLogout={onLogout} />
 
       {/* Main Content */}
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>

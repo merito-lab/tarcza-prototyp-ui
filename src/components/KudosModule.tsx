@@ -6,13 +6,9 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
   Chip,
   Avatar,
   List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   FormControl,
   InputLabel,
   Select,
@@ -20,11 +16,12 @@ import {
   Tabs,
   Tab,
   Container,
-  Divider,
   Fade,
   Grow,
   IconButton,
   Badge,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   EmojiEvents as TrophyIcon,
@@ -113,6 +110,7 @@ const KudosModule: React.FC<KudosModuleProps> = ({ user }) => {
   const [reason, setReason] = useState('');
   const [visibility, setVisibility] = useState('Publiczny');
   const [kudosList] = useState(mockKudos);
+  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -129,7 +127,12 @@ const KudosModule: React.FC<KudosModuleProps> = ({ user }) => {
       setReason('');
       setVisibility('Publiczny');
       // Show success message
+      setShowSuccess(true);
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setShowSuccess(false);
   };
 
   const getValueColor = (value: string) => {
@@ -218,103 +221,124 @@ const KudosModule: React.FC<KudosModuleProps> = ({ user }) => {
             <Grow in timeout={800}>
               <Card>
                 <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+                  <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 4 }}>
                     Przyznaj Kudosa współpracownikowi
                   </Typography>
 
-                  <Grid container spacing={3}>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                      <FormControl fullWidth sx={{ mb: 3 }}>
-                        <InputLabel>Komu przyznajesz Kudosa?</InputLabel>
-                        <Select
-                          value={recipient}
-                          onChange={(e) => setRecipient(e.target.value)}
-                          label="Komu przyznajesz Kudosa?"
-                        >
-                          {mockEmployees
-                            .filter(emp => emp.name !== user.name)
-                            .map((employee) => (
-                              <MenuItem key={employee.name} value={employee.name}>
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Avatar sx={{ mr: 2, fontSize: '1rem' }}>
-                                    {employee.avatar}
-                                  </Avatar>
-                                  {employee.name}
-                                </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {/* Sekcja wyboru odbiorcy i wartości */}
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ mb: 2, color: 'text.secondary' }}>
+                        Wybierz odbiorcę i wartość
+                      </Typography>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                        <FormControl fullWidth>
+                          <InputLabel>Komu przyznajesz Kudosa?</InputLabel>
+                          <Select
+                            value={recipient}
+                            onChange={(e) => setRecipient(e.target.value)}
+                            label="Komu przyznajesz Kudosa?"
+                          >
+                            {mockEmployees
+                              .filter(emp => emp.name !== user.name)
+                              .map((employee) => (
+                                <MenuItem key={employee.name} value={employee.name}>
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Avatar sx={{ mr: 2, fontSize: '1rem' }}>
+                                      {employee.avatar}
+                                    </Avatar>
+                                    {employee.name}
+                                  </Box>
+                                </MenuItem>
+                              ))}
+                          </Select>
+                        </FormControl>
+
+                        <FormControl fullWidth>
+                          <InputLabel>Za jaką wartość organizacyjną?</InputLabel>
+                          <Select
+                            value={value}
+                            onChange={(e) => setValue(e.target.value)}
+                            label="Za jaką wartość organizacyjną?"
+                          >
+                            {companyValues.map((val) => (
+                              <MenuItem key={val} value={val}>
+                                <Chip
+                                  label={val}
+                                  size="small"
+                                  sx={{
+                                    bgcolor: getValueColor(val),
+                                    color: 'white',
+                                    fontWeight: 500,
+                                  }}
+                                />
                               </MenuItem>
                             ))}
-                        </Select>
-                      </FormControl>
-
-                      <FormControl fullWidth sx={{ mb: 3 }}>
-                        <InputLabel>Za jaką wartość organizacyjną?</InputLabel>
-                        <Select
-                          value={value}
-                          onChange={(e) => setValue(e.target.value)}
-                          label="Za jaką wartość organizacyjną?"
-                        >
-                          {companyValues.map((val) => (
-                            <MenuItem key={val} value={val}>
-                              <Chip
-                                label={val}
-                                size="small"
-                                sx={{
-                                  bgcolor: getValueColor(val),
-                                  color: 'white',
-                                  fontWeight: 500,
-                                }}
-                              />
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-
-                      <FormControl fullWidth sx={{ mb: 3 }}>
-                        <InputLabel>Widoczność</InputLabel>
-                        <Select
-                          value={visibility}
-                          onChange={(e) => setVisibility(e.target.value)}
-                          label="Widoczność"
-                        >
-                          <MenuItem value="Publiczny">Publiczny</MenuItem>
-                          <MenuItem value="Tylko dla zespołu">Tylko dla zespołu</MenuItem>
-                          <MenuItem value="Prywatny">Prywatny</MenuItem>
-                        </Select>
-                      </FormControl>
+                          </Select>
+                        </FormControl>
+                      </Box>
                     </Box>
 
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                    {/* Sekcja uzasadnienia */}
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ mb: 2, color: 'text.secondary' }}>
+                        Uzasadnienie
+                      </Typography>
                       <TextField
                         fullWidth
                         multiline
-                        rows={8}
-                        label="Uzasadnienie (opisz konkretne działanie)"
+                        rows={6}
+                        label="Opisz konkretne działanie"
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
                         placeholder="Opisz konkretne działanie, za które chcesz docenić współpracownika..."
-                        sx={{ mb: 3 }}
-                      />
-
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        size="large"
-                        startIcon={<TrophyIcon />}
-                        onClick={handleSubmitKudos}
-                        disabled={!recipient || !value || !reason}
                         sx={{
-                          py: 1.5,
-                          fontSize: '1.1rem',
-                          background: 'linear-gradient(45deg, #FF9500 30%, #FFCC02 90%)',
-                          '&:hover': {
-                            background: 'linear-gradient(45deg, #FF6B00 30%, #FF9500 90%)',
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: 'primary.main',
+                            },
                           },
                         }}
-                      >
-                        🏆 Przyznaj Kudosa
-                      </Button>
+                      />
                     </Box>
-                  </Grid>
+
+                    {/* Sekcja widoczności i przycisku */}
+                    <Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+                        <FormControl sx={{ minWidth: 200 }}>
+                          <InputLabel>Widoczność</InputLabel>
+                          <Select
+                            value={visibility}
+                            onChange={(e) => setVisibility(e.target.value)}
+                            label="Widoczność"
+                          >
+                            <MenuItem value="Publiczny">Publiczny</MenuItem>
+                            <MenuItem value="Tylko dla zespołu">Tylko dla zespołu</MenuItem>
+                            <MenuItem value="Prywatny">Prywatny</MenuItem>
+                          </Select>
+                        </FormControl>
+
+                        <Button
+                          variant="contained"
+                          size="large"
+                          startIcon={<TrophyIcon />}
+                          onClick={handleSubmitKudos}
+                          disabled={!recipient || !value || !reason}
+                          sx={{
+                            px: 4,
+                            py: 1.5,
+                            fontSize: '1.1rem',
+                            background: 'linear-gradient(45deg, #FF9500 30%, #FFCC02 90%)',
+                            '&:hover': {
+                              background: 'linear-gradient(45deg, #FF6B00 30%, #FF9500 90%)',
+                            },
+                          }}
+                        >
+                          🏆 Przyznaj Kudosa
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Box>
                 </CardContent>
               </Card>
             </Grow>
@@ -381,87 +405,163 @@ const KudosModule: React.FC<KudosModuleProps> = ({ user }) => {
 
           <TabPanel value={tabValue} index={2}>
             <Grow in timeout={800}>
-              <Grid container spacing={3}>
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom fontWeight={600}>
-                        Najczęściej nagradzane wartości
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {/* Karty z głównymi statystykami */}
+                <Box sx={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: { 
+                    xs: '1fr', 
+                    sm: 'repeat(2, 1fr)', 
+                    md: 'repeat(3, 1fr)' 
+                  }, 
+                  gap: 3 
+                }}>
+                  <Card sx={{ 
+                    background: 'linear-gradient(135deg, #FF9500 0%, #FFCC02 100%)', 
+                    color: 'white' 
+                  }}>
+                    <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                      <Typography variant="h3" fontWeight={700} gutterBottom>
+                        {kudosList.length}
                       </Typography>
-                      <Divider sx={{ mb: 2 }} />
-                      {companyValues.slice(0, 5).map((val, index) => (
-                        <Box
-                          key={val}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            mb: 2,
-                          }}
-                        >
-                          <Chip
-                            label={val}
-                            sx={{
-                              bgcolor: getValueColor(val),
-                              color: 'white',
-                              fontWeight: 500,
-                            }}
-                          />
-                          <Typography variant="h6" fontWeight={600}>
-                            {Math.floor(Math.random() * 20) + 1}
-                          </Typography>
-                        </Box>
-                      ))}
+                      <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+                        Łączna liczba Kudosów
+                      </Typography>
+                    </CardContent>
+                  </Card>
+
+                  <Card sx={{ 
+                    background: 'linear-gradient(135deg, #34C759 0%, #30D158 100%)', 
+                    color: 'white' 
+                  }}>
+                    <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                      <Typography variant="h3" fontWeight={700} gutterBottom>
+                        {mockEmployees.length}
+                      </Typography>
+                      <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+                        Aktywni pracownicy
+                      </Typography>
+                    </CardContent>
+                  </Card>
+
+                  <Card sx={{ 
+                    background: 'linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%)', 
+                    color: 'white' 
+                  }}>
+                    <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                      <Typography variant="h3" fontWeight={700} gutterBottom>
+                        {companyValues.length}
+                      </Typography>
+                      <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+                        Wartości organizacyjne
+                      </Typography>
                     </CardContent>
                   </Card>
                 </Box>
 
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                {/* Karty z wartościami i odbiorcami */}
+                <Box sx={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: { 
+                    xs: '1fr', 
+                    md: 'repeat(2, 1fr)' 
+                  }, 
+                  gap: 3 
+                }}>
                   <Card>
                     <CardContent>
-                      <Typography variant="h6" gutterBottom fontWeight={600}>
+                      <Typography variant="h6" gutterBottom fontWeight={600} sx={{ mb: 3 }}>
+                        Najczęściej nagradzane wartości
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {companyValues.slice(0, 5).map((val) => (
+                          <Box
+                            key={val}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              p: 2,
+                              bgcolor: 'background.default',
+                              borderRadius: 1,
+                            }}
+                          >
+                            <Chip
+                              label={val}
+                              sx={{
+                                bgcolor: getValueColor(val),
+                                color: 'white',
+                                fontWeight: 500,
+                                fontSize: '1rem',
+                                py: 1,
+                              }}
+                            />
+                            <Typography variant="h6" fontWeight={600}>
+                              {Math.floor(Math.random() * 20) + 1}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom fontWeight={600} sx={{ mb: 3 }}>
                         Top odbiorcy Kudosów
                       </Typography>
-                      <Divider sx={{ mb: 2 }} />
-                      {mockEmployees.slice(0, 5).map((employee, index) => (
-                        <Box
-                          key={employee.name}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            mb: 2,
-                          }}
-                        >
-                          <Typography
-                            variant="h6"
-                            sx={{ mr: 2, fontWeight: 700, color: 'primary.main' }}
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {mockEmployees.slice(0, 5).map((employee, index) => (
+                          <Box
+                            key={employee.name}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              p: 2,
+                              bgcolor: 'background.default',
+                              borderRadius: 1,
+                            }}
                           >
-                            #{index + 1}
-                          </Typography>
-                          <Avatar sx={{ mr: 2, fontSize: '1rem' }}>
-                            {employee.avatar}
-                          </Avatar>
-                          <Box sx={{ flexGrow: 1 }}>
-                            <Typography variant="subtitle2" fontWeight={600}>
+                            <Typography
+                              variant="h6"
+                              sx={{ mr: 2, fontWeight: 700, color: 'primary.main', minWidth: 40 }}
+                            >
+                              #{index + 1}
+                            </Typography>
+                            <Avatar sx={{ mr: 2, fontSize: '1.2rem', width: 40, height: 40 }}>
+                              {employee.avatar}
+                            </Avatar>
+                            <Typography variant="subtitle1" fontWeight={600} sx={{ flexGrow: 1 }}>
                               {employee.name}
                             </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <TrophyIcon sx={{ color: '#FFCC02' }} />
+                              <Typography variant="h6" fontWeight={600}>
+                                {Math.floor(Math.random() * 15) + 1}
+                              </Typography>
+                            </Box>
                           </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <TrophyIcon sx={{ color: '#FFCC02', mr: 0.5 }} />
-                            <Typography variant="h6" fontWeight={600}>
-                              {Math.floor(Math.random() * 15) + 1}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      ))}
+                        ))}
+                      </Box>
                     </CardContent>
                   </Card>
                 </Box>
-              </Grid>
+              </Box>
             </Grow>
           </TabPanel>
         </Box>
       </Fade>
+
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          Kudos został pomyślnie przyznany! 🎉
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

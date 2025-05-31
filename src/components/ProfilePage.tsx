@@ -207,28 +207,28 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
                   Dane osobowe
                 </Typography>
                 
-                <Grid container spacing={3}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
                     <TextField
                       fullWidth
                       label="Imię i nazwisko"
                       value={user.name}
                       disabled
-                      sx={{ mb: 3 }}
                     />
                     <TextField
                       fullWidth
                       label="Email firmowy"
                       value={user.email}
                       disabled
-                      sx={{ mb: 3 }}
                     />
+                  </Box>
+                  
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
                     <TextField
                       fullWidth
                       label="Rola"
                       value={user.role}
                       disabled
-                      sx={{ mb: 3 }}
                     />
                     <TextField
                       fullWidth
@@ -245,7 +245,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
                       value={editData.phone}
                       onChange={(e) => setEditData({...editData, phone: e.target.value})}
                       disabled={!isEditing}
-                      sx={{ mb: 3 }}
                     />
                     <TextField
                       fullWidth
@@ -258,7 +257,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
                       placeholder="Napisz coś o sobie..."
                     />
                   </Box>
-                </Grid>
+                </Box>
               </CardContent>
             </TabPanel>
 
@@ -268,50 +267,55 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
                   Kompetencje i zainteresowania
                 </Typography>
                 
-                <Grid container spacing={3}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
                     <TextField
                       fullWidth
+                      multiline
+                      rows={4}
                       label="Umiejętności techniczne"
                       value={editData.skills}
                       onChange={(e) => setEditData({...editData, skills: e.target.value})}
                       disabled={!isEditing}
                       placeholder="React, TypeScript, Python..."
-                      sx={{ mb: 3 }}
                     />
                     <TextField
                       fullWidth
+                      multiline
+                      rows={4}
                       label="Zainteresowania"
                       value={editData.interests}
                       onChange={(e) => setEditData({...editData, interests: e.target.value})}
                       disabled={!isEditing}
                       placeholder="AI, Sustainability, Photography..."
-                      sx={{ mb: 3 }}
                     />
                   </Box>
-                </Grid>
+                </Box>
 
-                <Divider sx={{ my: 3 }} />
+                <Divider sx={{ my: 4 }} />
 
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
                   Certyfikaty i osiągnięcia
                 </Typography>
-                <Grid container spacing={2}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                   {[
                     'AWS Certified Solutions Architect',
                     'Scrum Master Certified',
                     'React Developer Expert',
                   ].map((cert, index) => (
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }} key={index}>
-                      <Chip
-                        label={cert}
-                        color="primary"
-                        variant="outlined"
-                        sx={{ mb: 1 }}
-                      />
-                    </Box>
+                    <Chip
+                      key={index}
+                      label={cert}
+                      color="primary"
+                      variant="outlined"
+                      sx={{ 
+                        fontSize: '1rem',
+                        py: 1,
+                        px: 2
+                      }}
+                    />
                   ))}
-                </Grid>
+                </Box>
               </CardContent>
             </TabPanel>
 
@@ -321,44 +325,38 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
                   Historia aktywności
                 </Typography>
                 
-                <Grid container spacing={3}>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                    <Card sx={{ bgcolor: 'primary.light', color: 'white' }}>
-                      <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography variant="h3" fontWeight={700}>
-                          12
-                        </Typography>
-                        <Typography variant="body2">
-                          Przyznane Kudosy
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Box>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                    <Card sx={{ bgcolor: 'success.light', color: 'white' }}>
-                      <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography variant="h3" fontWeight={700}>
-                          8
-                        </Typography>
-                        <Typography variant="body2">
-                          Otrzymane Kudosy
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Box>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                    <Card sx={{ bgcolor: 'warning.light', color: 'white' }}>
-                      <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography variant="h3" fontWeight={700}>
-                          3
-                        </Typography>
-                        <Typography variant="body2">
-                          Zgłoszone inicjatywy
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Box>
-                </Grid>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
+                  <Card sx={{ bgcolor: 'primary.light', color: 'white' }}>
+                    <CardContent sx={{ textAlign: 'center' }}>
+                      <Typography variant="h3" fontWeight={700}>
+                        12
+                      </Typography>
+                      <Typography variant="body2">
+                        Przyznane Kudosy
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                  <Card sx={{ bgcolor: 'success.light', color: 'white' }}>
+                    <CardContent sx={{ textAlign: 'center' }}>
+                      <Typography variant="h3" fontWeight={700}>
+                        8
+                      </Typography>
+                      <Typography variant="body2">
+                        Otrzymane Kudosy
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                  <Card sx={{ bgcolor: 'warning.light', color: 'white' }}>
+                    <CardContent sx={{ textAlign: 'center' }}>
+                      <Typography variant="h3" fontWeight={700}>
+                        3
+                      </Typography>
+                      <Typography variant="body2">
+                        Zgłoszone inicjatywy
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Box>
 
                 <Box sx={{ mt: 4 }}>
                   <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>

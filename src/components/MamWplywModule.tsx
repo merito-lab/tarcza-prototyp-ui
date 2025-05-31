@@ -6,7 +6,6 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
   Chip,
   IconButton,
   Container,
@@ -20,6 +19,8 @@ import {
   Grow,
   Badge,
   Avatar,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   Lightbulb as LightbulbIcon,
@@ -27,7 +28,6 @@ import {
   ThumbUp as ThumbUpIcon,
   TrendingUp as TrendingUpIcon,
   Add as AddIcon,
-  CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -138,6 +138,7 @@ const MamWplywModule: React.FC<MamWplywModuleProps> = ({ user }) => {
   const [category, setCategory] = useState('');
   const [expectedImpact, setExpectedImpact] = useState('');
   const [initiatives] = useState(mockInitiatives);
+  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
 
   if (!user) return null;
@@ -158,7 +159,15 @@ const MamWplywModule: React.FC<MamWplywModuleProps> = ({ user }) => {
       setSolution('');
       setCategory('');
       setExpectedImpact('');
+      // Show success message
+      setShowSuccess(true);
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setShowSuccess(false);
+    // Przekieruj do tabu z listą inicjatyw
+    setTabValue(1);
   };
 
   const getStatusColor = (status: string) => {
@@ -252,23 +261,54 @@ const MamWplywModule: React.FC<MamWplywModuleProps> = ({ user }) => {
             <Grow in timeout={800}>
               <Card>
                 <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+                  <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 4 }}>
                     Zgłoś swoją inicjatywę
                   </Typography>
 
-                  <Grid container spacing={3}>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                      <TextField
-                        fullWidth
-                        label="Tytuł inicjatywy"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Krótko opisz swoją inicjatywę..."
-                        sx={{ mb: 3 }}
-                      />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {/* Sekcja podstawowych informacji */}
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ mb: 2, color: 'text.secondary' }}>
+                        Podstawowe informacje
+                      </Typography>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                        <TextField
+                          fullWidth
+                          label="Tytuł inicjatywy"
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          placeholder="Krótko opisz swoją inicjatywę..."
+                        />
+                        <FormControl fullWidth>
+                          <InputLabel>Kategoria</InputLabel>
+                          <Select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            label="Kategoria"
+                          >
+                            {categories.map((cat) => (
+                              <MenuItem key={cat} value={cat}>
+                                <Chip
+                                  label={cat}
+                                  size="small"
+                                  sx={{
+                                    bgcolor: getCategoryColor(cat),
+                                    color: 'white',
+                                    fontWeight: 500,
+                                  }}
+                                />
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
                     </Box>
 
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                    {/* Sekcja opisu problemu */}
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ mb: 2, color: 'text.secondary' }}>
+                        Opis problemu
+                      </Typography>
                       <TextField
                         fullWidth
                         multiline
@@ -277,11 +317,21 @@ const MamWplywModule: React.FC<MamWplywModuleProps> = ({ user }) => {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="Opisz problem, który chcesz rozwiązać lub możliwość, którą dostrzegasz..."
-                        sx={{ mb: 3 }}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: 'primary.main',
+                            },
+                          },
+                        }}
                       />
                     </Box>
 
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                    {/* Sekcja proponowanego rozwiązania */}
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ mb: 2, color: 'text.secondary' }}>
+                        Proponowane rozwiązanie
+                      </Typography>
                       <TextField
                         fullWidth
                         multiline
@@ -290,288 +340,339 @@ const MamWplywModule: React.FC<MamWplywModuleProps> = ({ user }) => {
                         value={solution}
                         onChange={(e) => setSolution(e.target.value)}
                         placeholder="Jak można rozwiązać ten problem? Jakie kroki należy podjąć?"
-                        sx={{ mb: 3 }}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: 'primary.main',
+                            },
+                          },
+                        }}
                       />
                     </Box>
 
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                      <FormControl fullWidth sx={{ mb: 3 }}>
-                        <InputLabel>Kategoria</InputLabel>
-                        <Select
-                          value={category}
-                          onChange={(e) => setCategory(e.target.value)}
-                          label="Kategoria"
-                        >
-                          {categories.map((cat) => (
-                            <MenuItem key={cat} value={cat}>
-                              <Chip
-                                label={cat}
-                                size="small"
-                                sx={{
-                                  bgcolor: getCategoryColor(cat),
-                                  color: 'white',
-                                  fontWeight: 500,
-                                }}
-                              />
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Box>
+                    {/* Sekcja wpływu i przycisku */}
+                    <Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+                        <FormControl sx={{ minWidth: 200 }}>
+                          <InputLabel>Oczekiwany wpływ</InputLabel>
+                          <Select
+                            value={expectedImpact}
+                            onChange={(e) => setExpectedImpact(e.target.value)}
+                            label="Oczekiwany wpływ"
+                          >
+                            {impactLevels.map((level) => (
+                              <MenuItem key={level} value={level}>
+                                {level}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
 
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                      <FormControl fullWidth sx={{ mb: 3 }}>
-                        <InputLabel>Oczekiwany wpływ</InputLabel>
-                        <Select
-                          value={expectedImpact}
-                          onChange={(e) => setExpectedImpact(e.target.value)}
-                          label="Oczekiwany wpływ"
+                        <Button
+                          variant="contained"
+                          size="large"
+                          startIcon={<LightbulbIcon />}
+                          onClick={handleSubmitInitiative}
+                          disabled={!title || !description || !solution || !category || !expectedImpact}
+                          sx={{
+                            px: 4,
+                            py: 1.5,
+                            fontSize: '1.1rem',
+                            background: 'linear-gradient(45deg, #FFCC02 30%, #FF9500 90%)',
+                            '&:hover': {
+                              background: 'linear-gradient(45deg, #FF9500 30%, #FF6B00 90%)',
+                            },
+                          }}
                         >
-                          {impactLevels.map((level) => (
-                            <MenuItem key={level} value={level}>
-                              {level}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                          💡 Zgłoś inicjatywę
+                        </Button>
+                      </Box>
                     </Box>
-
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        size="large"
-                        startIcon={<LightbulbIcon />}
-                        onClick={handleSubmitInitiative}
-                        disabled={!title || !description || !solution || !category || !expectedImpact}
-                        sx={{
-                          py: 1.5,
-                          fontSize: '1.1rem',
-                          background: 'linear-gradient(45deg, #FFCC02 30%, #FF9500 90%)',
-                          '&:hover': {
-                            background: 'linear-gradient(45deg, #FF9500 30%, #FF6B00 90%)',
-                          },
-                        }}
-                      >
-                        💡 Zgłoś inicjatywę
-                      </Button>
-                    </Box>
-                  </Grid>
+                  </Box>
                 </CardContent>
               </Card>
             </Grow>
           </TabPanel>
 
           <TabPanel value={tabValue} index={1}>
-            <Grid container spacing={3}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               {initiatives.map((initiative, index) => (
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }} key={initiative.id}>
-                  <Grow in timeout={600 + index * 200}>
-                    <Card>
-                      <CardContent sx={{ p: 3 }}>
-                        <Grid container spacing={3}>
-                          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                              <Avatar sx={{ mr: 2, fontSize: '1rem' }}>
-                                {initiative.authorAvatar}
-                              </Avatar>
-                              <Box sx={{ flexGrow: 1 }}>
-                                <Typography variant="h6" fontWeight={600}>
-                                  {initiative.title}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                  {initiative.author} • {initiative.date}
-                                </Typography>
-                              </Box>
-                              <Chip
-                                label={initiative.status}
-                                sx={{
-                                  bgcolor: getStatusColor(initiative.status),
-                                  color: 'white',
-                                  fontWeight: 500,
-                                }}
-                              />
-                            </Box>
-
-                            <Typography variant="body1" sx={{ mb: 2 }}>
-                              <strong>Problem:</strong> {initiative.description}
+                <Grow key={initiative.id} in timeout={600 + index * 200}>
+                  <Card>
+                    <CardContent sx={{ p: 3 }}>
+                      {/* Nagłówek inicjatywy */}
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 3 }}>
+                        <Avatar sx={{ mr: 2, fontSize: '1.2rem', width: 40, height: 40 }}>
+                          {initiative.authorAvatar}
+                        </Avatar>
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography variant="h6" fontWeight={600} gutterBottom>
+                            {initiative.title}
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                            <Typography variant="body2" color="text.secondary">
+                              {initiative.author}
                             </Typography>
-                            <Typography variant="body1" sx={{ mb: 2 }}>
-                              <strong>Rozwiązanie:</strong> {initiative.solution}
+                            <Typography variant="body2" color="text.secondary">•</Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {initiative.date}
                             </Typography>
-
-                            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                              <Chip
-                                label={initiative.category}
-                                size="small"
-                                sx={{
-                                  bgcolor: getCategoryColor(initiative.category),
-                                  color: 'white',
-                                  fontWeight: 500,
-                                }}
-                              />
-                              <Chip
-                                label={`Wpływ: ${initiative.expectedImpact}`}
-                                size="small"
-                                variant="outlined"
-                              />
-                            </Box>
+                            <Typography variant="body2" color="text.secondary">•</Typography>
+                            <Chip
+                              label={initiative.category}
+                              size="small"
+                              sx={{
+                                bgcolor: getCategoryColor(initiative.category),
+                                color: 'white',
+                                fontWeight: 500,
+                              }}
+                            />
                           </Box>
+                        </Box>
+                        <Chip
+                          label={initiative.status}
+                          sx={{
+                            bgcolor: getStatusColor(initiative.status),
+                            color: 'white',
+                            fontWeight: 500,
+                            ml: 2,
+                          }}
+                        />
+                      </Box>
 
-                          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                            <Box sx={{ textAlign: 'center' }}>
-                              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                                <Button
-                                  variant="outlined"
-                                  startIcon={<ThumbUpIcon />}
-                                  sx={{ mr: 1 }}
-                                >
-                                  {initiative.votes}
-                                </Button>
-                                <Button variant="outlined">
-                                  {initiative.comments} komentarzy
-                                </Button>
-                              </Box>
+                      {/* Treść inicjatywy */}
+                      <Box sx={{ mb: 3 }}>
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                            Problem
+                          </Typography>
+                          <Typography variant="body1">
+                            {initiative.description}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                            Proponowane rozwiązanie
+                          </Typography>
+                          <Typography variant="body1">
+                            {initiative.solution}
+                          </Typography>
+                        </Box>
+                      </Box>
 
-                              {hasFullAccess && (
-                                <FormControl fullWidth size="small">
-                                  <InputLabel>Zmień status</InputLabel>
-                                  <Select
-                                    value={initiative.status}
-                                    label="Zmień status"
-                                    onChange={(e) => {
-                                      console.log('Status changed:', e.target.value);
-                                    }}
-                                  >
-                                    {statusOptions.map((status) => (
-                                      <MenuItem key={status} value={status}>
-                                        {status}
-                                      </MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
-                              )}
-                            </Box>
-                          </Box>
-                        </Grid>
-                      </CardContent>
-                    </Card>
-                  </Grow>
-                </Box>
+                      {/* Stopka inicjatywy */}
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: 2,
+                        pt: 2,
+                        borderTop: 1,
+                        borderColor: 'divider'
+                      }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<ThumbUpIcon />}
+                            sx={{ minWidth: 100 }}
+                          >
+                            {initiative.votes}
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            sx={{ minWidth: 100 }}
+                          >
+                            {initiative.comments} komentarzy
+                          </Button>
+                          <Chip
+                            label={`Wpływ: ${initiative.expectedImpact}`}
+                            size="small"
+                            variant="outlined"
+                          />
+                        </Box>
+
+                        {hasFullAccess && (
+                          <FormControl size="small" sx={{ minWidth: 200 }}>
+                            <InputLabel>Zmień status</InputLabel>
+                            <Select
+                              value={initiative.status}
+                              label="Zmień status"
+                              onChange={(e) => {
+                                console.log('Status changed:', e.target.value);
+                              }}
+                            >
+                              {statusOptions.map((status) => (
+                                <MenuItem key={status} value={status}>
+                                  {status}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        )}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grow>
               ))}
-            </Grid>
+            </Box>
           </TabPanel>
 
           <TabPanel value={tabValue} index={2}>
-            <Grid container spacing={3}>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {/* Karty z głównymi statystykami */}
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { 
+                  xs: '1fr', 
+                  sm: 'repeat(2, 1fr)', 
+                  md: 'repeat(3, 1fr)' 
+                }, 
+                gap: 3 
+              }}>
+                <Card sx={{ 
+                  background: 'linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%)', 
+                  color: 'white' 
+                }}>
+                  <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="h3" fontWeight={700} gutterBottom>
+                      {initiatives.length}
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+                      Łączna liczba inicjatyw
+                    </Typography>
+                  </CardContent>
+                </Card>
+
+                <Card sx={{ 
+                  background: 'linear-gradient(135deg, #34C759 0%, #30D158 100%)', 
+                  color: 'white' 
+                }}>
+                  <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="h3" fontWeight={700} gutterBottom>
+                      {initiatives.filter(i => i.status === 'Zrealizowana').length}
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+                      Zrealizowane inicjatywy
+                    </Typography>
+                  </CardContent>
+                </Card>
+
+                <Card sx={{ 
+                  background: 'linear-gradient(135deg, #FF9500 0%, #FFCC02 100%)', 
+                  color: 'white' 
+                }}>
+                  <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="h3" fontWeight={700} gutterBottom>
+                      {Math.round(initiatives.reduce((sum, i) => sum + i.votes, 0) / initiatives.length)}
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+                      Średnia liczba głosów
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Box>
+
+              {/* Karty z kategoriami i statusami */}
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { 
+                  xs: '1fr', 
+                  md: 'repeat(2, 1fr)' 
+                }, 
+                gap: 3 
+              }}>
                 <Card>
                   <CardContent>
-                    <Typography variant="h6" gutterBottom fontWeight={600}>
+                    <Typography variant="h6" gutterBottom fontWeight={600} sx={{ mb: 3 }}>
                       Inicjatywy według kategorii
                     </Typography>
-                    {categories.slice(0, 4).map((cat, index) => (
-                      <Box
-                        key={cat}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          mb: 2,
-                        }}
-                      >
-                        <Chip
-                          label={cat}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {categories.slice(0, 4).map((cat) => (
+                        <Box
+                          key={cat}
                           sx={{
-                            bgcolor: getCategoryColor(cat),
-                            color: 'white',
-                            fontWeight: 500,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            p: 2,
+                            bgcolor: 'background.default',
+                            borderRadius: 1,
                           }}
-                        />
-                        <Typography variant="h6" fontWeight={600}>
-                          {Math.floor(Math.random() * 10) + 1}
-                        </Typography>
-                      </Box>
-                    ))}
+                        >
+                          <Chip
+                            label={cat}
+                            sx={{
+                              bgcolor: getCategoryColor(cat),
+                              color: 'white',
+                              fontWeight: 500,
+                              fontSize: '1rem',
+                              py: 1,
+                            }}
+                          />
+                          <Typography variant="h6" fontWeight={600}>
+                            {Math.floor(Math.random() * 10) + 1}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
                   </CardContent>
                 </Card>
-              </Box>
 
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
                 <Card>
                   <CardContent>
-                    <Typography variant="h6" gutterBottom fontWeight={600}>
+                    <Typography variant="h6" gutterBottom fontWeight={600} sx={{ mb: 3 }}>
                       Status inicjatyw
                     </Typography>
-                    {statusOptions.slice(0, 5).map((status, index) => (
-                      <Box
-                        key={status}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          mb: 2,
-                        }}
-                      >
-                        <Chip
-                          label={status}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {statusOptions.slice(0, 5).map((status) => (
+                        <Box
+                          key={status}
                           sx={{
-                            bgcolor: getStatusColor(status),
-                            color: 'white',
-                            fontWeight: 500,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            p: 2,
+                            bgcolor: 'background.default',
+                            borderRadius: 1,
                           }}
-                        />
-                        <Typography variant="h6" fontWeight={600}>
-                          {Math.floor(Math.random() * 8) + 1}
-                        </Typography>
-                      </Box>
-                    ))}
+                        >
+                          <Chip
+                            label={status}
+                            sx={{
+                              bgcolor: getStatusColor(status),
+                              color: 'white',
+                              fontWeight: 500,
+                              fontSize: '1rem',
+                              py: 1,
+                            }}
+                          />
+                          <Typography variant="h6" fontWeight={600}>
+                            {Math.floor(Math.random() * 8) + 1}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
                   </CardContent>
                 </Card>
               </Box>
-
-              <Grid container spacing={3}>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                    <Card sx={{ bgcolor: 'primary.light', color: 'white' }}>
-                      <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography variant="h3" fontWeight={700}>
-                          {initiatives.length}
-                        </Typography>
-                        <Typography variant="body2">
-                          Łączna liczba inicjatyw
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Box>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                    <Card sx={{ bgcolor: 'success.light', color: 'white' }}>
-                      <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography variant="h3" fontWeight={700}>
-                          {initiatives.filter(i => i.status === 'Zrealizowana').length}
-                        </Typography>
-                        <Typography variant="body2">
-                          Zrealizowane inicjatywy
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Box>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                    <Card sx={{ bgcolor: 'warning.light', color: 'white' }}>
-                      <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography variant="h3" fontWeight={700}>
-                          {Math.round(initiatives.reduce((sum, i) => sum + i.votes, 0) / initiatives.length)}
-                        </Typography>
-                        <Typography variant="body2">
-                          Średnia liczba głosów
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Box>
-              </Grid>
-            </Grid>
+            </Box>
           </TabPanel>
         </Box>
       </Fade>
+
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          Inicjatywa została pomyślnie zgłoszona! 🎉
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
